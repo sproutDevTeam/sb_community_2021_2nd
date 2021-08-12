@@ -5,6 +5,7 @@ import lombok.Getter;
 import org.springframework.validation.BindingResult;
 
 import javax.validation.ConstraintViolation;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -13,9 +14,11 @@ import java.util.stream.Collectors;
 @Getter
 public class ErrorResponse {
 
+    private final LocalDateTime timestamp = LocalDateTime.now();
     private final String message;
     private final String code;
     private final int status;
+    private final String error;
     private final List<FieldError> errors;
 
     @Builder
@@ -23,6 +26,7 @@ public class ErrorResponse {
         this.message = errorCode.getMessage();
         this.code = errorCode.getCode();
         this.status = errorCode.getStatus().value();
+        this.error = errorCode.getStatus().name();
         this.errors = initErrors(errors);
     }
 
