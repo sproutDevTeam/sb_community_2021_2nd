@@ -4,8 +4,10 @@ import lombok.Builder;
 import lombok.Getter;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -46,24 +48,28 @@ public class ErrorResponse {
 
     public static ResponseEntity<ErrorResponse> toResponseEntity(final ErrorCode errorCode, final List<FieldError> errors) {
         final ErrorResponse response = ErrorResponse.builder()
-                .errorCode(errorCode)
-                .errors(errors).build();
+                .errorCode(errorCode).errors(errors).build();
 
         return ResponseEntity.status(errorCode.getStatus()).body(response);
     }
 
     public static ResponseEntity<ErrorResponse> toResponseEntity(final ErrorCode errorCode, final BindingResult bindingResult) {
         final ErrorResponse response = ErrorResponse.builder()
-                .errorCode(errorCode)
-                .errors(FieldError.getFieldErrors(bindingResult)).build();
+                .errorCode(errorCode).errors(FieldError.of(bindingResult)).build();
 
         return ResponseEntity.status(errorCode.getStatus()).body(response);
     }
 
-    public static ResponseEntity<ErrorResponse> toResponseEntity(final ErrorCode errorCode, final Set<ConstraintViolation<?>> constraintViolations) {
+    public static ResponseEntity<ErrorResponse> toResponseEntity(final ErrorCode errorCode, final ConstraintViolationException violationException) {
         final ErrorResponse response = ErrorResponse.builder()
-                .errorCode(errorCode)
-                .errors(FieldError.getFieldErrors(constraintViolations)).build();
+                .errorCode(errorCode).errors(FieldError.of(violationException)).build();
+
+        return ResponseEntity.status(errorCode.getStatus()).body(response);
+    }
+
+    public static ResponseEntity<ErrorResponse> toResponseEntity(final ErrorCode errorCode, final MethodArgumentTypeMismatchException typeMismatchException) {
+        final ErrorResponse response = ErrorResponse.builder()
+                .errorCode(errorCode).errors(FieldError.of(typeMismatchException)).build();
 
         return ResponseEntity.status(errorCode.getStatus()).body(response);
     }
@@ -81,11 +87,11 @@ public class ErrorResponse {
             this.reason = reason;
         }
 
-        public static List<FieldError> getFieldErrors(final String field, final String value, final String reason) {
+        public static List<FieldError> of(final String field, final String value, final String reason) {
             return List.of(new FieldError(field, value, reason));
         }
 
-        private static List<FieldError> getFieldErrors(final BindingResult bindingResult) {
+        private static List<FieldError> of(final BindingResult bindingResult) {
             final List<org.springframework.validation.FieldError> errors = bindingResult.getFieldErrors();
             return errors.parallelStream()
                     .map(error -> FieldError.builder()
@@ -96,7 +102,8 @@ public class ErrorResponse {
                     .collect(Collectors.toList());
         }
 
-        private static List<FieldError> getFieldErrors(final Set<ConstraintViolation<?>> constraintViolations) {
+        private static List<FieldError> of(final ConstraintViolationException e) {
+            final Set<ConstraintViolation<?>> constraintViolations = e.getConstraintViolations();
             return constraintViolations.parallelStream()
                     .map(error -> FieldError.builder()
                             .field(String.valueOf(error.getPropertyPath()))
@@ -106,6 +113,15 @@ public class ErrorResponse {
                     .collect(Collectors.toList());
         }
 
+        private static List<FieldError> of(MethodArgumentTypeMismatchException e) {
+            final String field = e.getName();
+            final String value = String.valueOf(e.getValue());
+            final String requiredType = e.getRequiredType().getSimpleName();
+            final String reason = field + " should be of type " + requiredType + ". Current input value: {" + value + "}";
+            // final String reason = e.getErrorCode();
+
+            return FieldError.of(field, value, reason);
+        }
     }
 
 }
