@@ -1,6 +1,6 @@
 package com.tena.sbcommunity2021.global.errors;
 
-import com.tena.sbcommunity2021.articles.exception.ArticleNotFoundException;
+import com.tena.sbcommunity2021.global.errors.exception.CustomException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindException;
@@ -20,19 +20,19 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @ControllerAdvice
 @ResponseBody
-@Slf4j
 public class ErrorExceptionController {
 
-	// TODO CustomException 도입해 상위타입 예외로 핸들링할 것
-	@ExceptionHandler(ArticleNotFoundException.class)
+	@ExceptionHandler(CustomException.class)
 	@ResponseStatus(HttpStatus.NOT_FOUND)
-	protected ErrorResponse handleArticleNotFoundException(final ArticleNotFoundException e) {
-		final ErrorCode articleNotFound = ErrorCode.ARTICLE_NOT_FOUND;
-		log.error(articleNotFound.getMessage() + " id does not exist : {}", e.getId());
+	protected ErrorResponse handleCustomException(final CustomException e) {
+		log.error("handleCustomException", e);
+		log.error("errorCode : {}", e.getErrorCode());
+		final ErrorCode errorCode = e.getErrorCode();
 
-		return buildError(articleNotFound);
+		return buildError(errorCode);
 	}
 
 	@ExceptionHandler(ConstraintViolationException.class)
@@ -92,7 +92,7 @@ public class ErrorExceptionController {
 		return buildError(ErrorCode.INTERNAL_SERVER_ERROR);
 	}
 
-	private List<ErrorResponse.FieldError> getFieldErrors(BindingResult bindingResult) {
+	private List<ErrorResponse.FieldError> getFieldErrors(final BindingResult bindingResult) {
 		final List<FieldError> errors = bindingResult.getFieldErrors();
 		return errors.parallelStream()
 				.map(error -> ErrorResponse.FieldError.builder()
@@ -103,7 +103,7 @@ public class ErrorExceptionController {
 				.collect(Collectors.toList());
 	}
 
-	private List<ErrorResponse.FieldError> getFieldErrors(Set<ConstraintViolation<?>> constraintViolations) {
+	private List<ErrorResponse.FieldError> getFieldErrors(final Set<ConstraintViolation<?>> constraintViolations) {
 		return constraintViolations.parallelStream()
 				.map(error -> ErrorResponse.FieldError.builder()
 						.reason(error.getMessage())
@@ -113,7 +113,7 @@ public class ErrorExceptionController {
 				.collect(Collectors.toList());
 	}
 
-	private ErrorResponse buildError(ErrorCode errorCode) {
+	private ErrorResponse buildError(final ErrorCode errorCode) {
 		return ErrorResponse.builder()
 				.code(errorCode.getCode())
 				.status(errorCode.getStatus().value())
@@ -121,7 +121,7 @@ public class ErrorExceptionController {
 				.build();
 	}
 
-	private ErrorResponse buildFieldErrors(ErrorCode errorCode, List<ErrorResponse.FieldError> errors) {
+	private ErrorResponse buildFieldErrors(final ErrorCode errorCode, final List<ErrorResponse.FieldError> errors) {
 		return ErrorResponse.builder()
 				.code(errorCode.getCode())
 				.status(errorCode.getStatus().value())

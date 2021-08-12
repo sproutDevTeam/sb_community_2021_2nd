@@ -1,12 +1,12 @@
 package com.tena.sbcommunity2021.articles.exception;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import com.tena.sbcommunity2021.global.errors.ErrorCode;
+import com.tena.sbcommunity2021.global.errors.exception.CustomException;
 
-@Getter
-@RequiredArgsConstructor
-public class ArticleNotFoundException extends RuntimeException {
+public class ArticleNotFoundException extends CustomException {
 
-	private final Long id;
+	public ArticleNotFoundException() {
+		super(ErrorCode.ARTICLE_NOT_FOUND);
+	}
 
 }

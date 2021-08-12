@@ -14,22 +14,15 @@ public class ErrorResponse {
     private int status;
     private List<FieldError> errors;
 
-    public ErrorResponse(ErrorCode code, List<FieldError> errors) {
-        this.message = code.getMessage();
-        this.code = code.getCode();
-        this.status = code.getStatus().value();
-        this.errors = initErrors(errors);
-    }
-
     @Builder
-    public ErrorResponse(String message, String code, int status, List<FieldError> errors) {
+    public ErrorResponse(final String message, final String code, final int status, final List<FieldError> errors) {
         this.message = message;
         this.code = code;
         this.status = status;
         this.errors = initErrors(errors);
     }
 
-    private List<FieldError> initErrors(List<FieldError> errors) {
+    private List<FieldError> initErrors(final List<FieldError> errors) {
         return (errors == null) ? new ArrayList<>() : errors;
     }
 
@@ -40,7 +33,7 @@ public class ErrorResponse {
         private String reason;
 
         @Builder
-        public FieldError(String field, String value, String reason) {
+        public FieldError(final String field, final String value, final String reason) {
             this.field = field;
             this.value = value;
             this.reason = reason;

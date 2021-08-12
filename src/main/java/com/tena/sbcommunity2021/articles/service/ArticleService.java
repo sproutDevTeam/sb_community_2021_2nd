@@ -26,7 +26,7 @@ public class ArticleService {
 	}
 
 	public Article getArticle(Long id) {
-		return articleRepository.findById(id).orElseThrow(() -> new ArticleNotFoundException(id));
+		return articleRepository.findById(id).orElseThrow(ArticleNotFoundException::new);
 	}
 
 	public void deleteArticle(Long id) {
