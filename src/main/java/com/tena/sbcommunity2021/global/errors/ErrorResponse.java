@@ -6,6 +6,7 @@ import org.springframework.validation.BindingResult;
 
 import javax.validation.ConstraintViolation;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -14,7 +15,7 @@ import java.util.stream.Collectors;
 @Getter
 public class ErrorResponse {
 
-    private final LocalDateTime timestamp = LocalDateTime.now();
+    private final String timestamp;
     private final String message;
     private final String code;
     private final int status;
@@ -23,6 +24,7 @@ public class ErrorResponse {
 
     @Builder
     private ErrorResponse(final ErrorCode errorCode, final List<FieldError> errors) {
+        this.timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss"));
         this.message = errorCode.getMessage();
         this.code = errorCode.getCode();
         this.status = errorCode.getStatus().value();
