@@ -5,12 +5,15 @@ import com.tena.sbcommunity2021.articles.dto.ArticleDto;
 import com.tena.sbcommunity2021.articles.service.ArticleService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,7 +45,8 @@ public class ArticleController {
 
 	@RequestMapping("/new")
 	@ResponseBody
-	public ArticleDto.Response createArticle(ArticleDto.Save saveDto) {
+	@ResponseStatus(HttpStatus.CREATED)
+	public ArticleDto.Response createArticle(@Valid ArticleDto.Save saveDto) {
 		Article article = articleService.createArticle(saveDto);
 
 		return new ArticleDto.Response(article);
@@ -50,7 +54,7 @@ public class ArticleController {
 
 	@RequestMapping("/{id}/edit")
 	@ResponseBody
-	public ArticleDto.Response updateArticle(@PathVariable("id") Long id, ArticleDto.Save saveDto) {
+	public ArticleDto.Response updateArticle(@PathVariable("id") Long id, @Valid ArticleDto.Save saveDto) {
 		Article article = articleService.updateArticle(id, saveDto);
 
 		return new ArticleDto.Response(article);
