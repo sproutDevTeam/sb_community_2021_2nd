@@ -2,6 +2,7 @@ package com.tena.sbcommunity2021.global.errors;
 
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 
 import javax.validation.ConstraintViolation;
@@ -36,31 +37,35 @@ public class ErrorResponse {
         return (errors == null) ? new ArrayList<>() : errors;
     }
 
-    public static ErrorResponse buildError(final ErrorCode errorCode) {
-        return ErrorResponse.builder()
-                .errorCode(errorCode)
-                .build();
+    public static ResponseEntity<ErrorResponse> toResponseEntity(final ErrorCode errorCode) {
+        final ErrorResponse response = ErrorResponse.builder()
+                .errorCode(errorCode).build();
+
+        return ResponseEntity.status(errorCode.getStatus()).body(response);
     }
 
-    public static ErrorResponse buildFieldErrors(final ErrorCode errorCode, final List<FieldError> errors) {
-        return ErrorResponse.builder()
+    public static ResponseEntity<ErrorResponse> toResponseEntity(final ErrorCode errorCode, final List<FieldError> errors) {
+        final ErrorResponse response = ErrorResponse.builder()
                 .errorCode(errorCode)
-                .errors(errors)
-                .build();
+                .errors(errors).build();
+
+        return ResponseEntity.status(errorCode.getStatus()).body(response);
     }
 
-    public static ErrorResponse buildFieldErrors(final ErrorCode errorCode, final BindingResult bindingResult) {
-        return ErrorResponse.builder()
+    public static ResponseEntity<ErrorResponse> toResponseEntity(final ErrorCode errorCode, final BindingResult bindingResult) {
+        final ErrorResponse response = ErrorResponse.builder()
                 .errorCode(errorCode)
-                .errors(FieldError.getFieldErrors(bindingResult))
-                .build();
+                .errors(FieldError.getFieldErrors(bindingResult)).build();
+
+        return ResponseEntity.status(errorCode.getStatus()).body(response);
     }
 
-    public static ErrorResponse buildFieldErrors(final ErrorCode errorCode, final Set<ConstraintViolation<?>> constraintViolations) {
-        return ErrorResponse.builder()
+    public static ResponseEntity<ErrorResponse> toResponseEntity(final ErrorCode errorCode, final Set<ConstraintViolation<?>> constraintViolations) {
+        final ErrorResponse response = ErrorResponse.builder()
                 .errorCode(errorCode)
-                .errors(FieldError.getFieldErrors(constraintViolations))
-                .build();
+                .errors(FieldError.getFieldErrors(constraintViolations)).build();
+
+        return ResponseEntity.status(errorCode.getStatus()).body(response);
     }
 
     @Getter
