@@ -25,7 +25,7 @@ public class ArticleController {
 
 	private final ArticleService articleService;
 
-	@RequestMapping
+	@GetMapping
 	@ResponseBody
 	public List<ArticleDto.Response> getArticles() {
 		List<Article> articles = articleService.getArticles();

@@ -8,20 +8,22 @@ import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.IntStream;
 
 @Slf4j
 @Repository
 public class ArticleRepository {
 
 	// DB 내 데이터라 가정
-	private static final List<Article> articles = new ArrayList<>();
+	private List<Article> articles;
 
 	@PostConstruct
 	private void initArticles() {
-		IntStream.rangeClosed(1, 10)
-				.mapToObj(i -> Article.builder().title("제목" + i).content("내용" + i).build())
-				.forEach(articles::add);
+		articles = new ArrayList<>();
+
+		for (int i = 1; i <= 10; i++) {
+			Article article = new Article("제목" + i, "내용" + i);
+			articles.add(article);
+		}
 
 		log.info("articles init size: {}", articles.size());
 		log.info("articles : {}", articles);
@@ -35,7 +37,7 @@ public class ArticleRepository {
 	}
 
 	public List<Article> findAll() {
-		return articles;
+		return articles == null ? List.of() : articles;
 	}
 
 	public Optional<Article> findById(Long id) {

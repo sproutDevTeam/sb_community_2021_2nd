@@ -7,6 +7,7 @@ import javax.validation.constraints.NotBlank;
 
 public class ArticleDto {
 
+	@ToString
 	@Getter
 	@NoArgsConstructor(access = AccessLevel.PROTECTED)
 	public static class Save {
@@ -33,7 +34,9 @@ public class ArticleDto {
 
 	}
 
+	@ToString
 	@Getter
+	@NoArgsConstructor(access = AccessLevel.PROTECTED)
 	public static class Response {
 		private Long id;
 		private String title;
