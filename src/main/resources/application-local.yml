@@ -1,0 +1,14 @@
+database-vendor: mysql
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3308/c_2021_2nd?useUnicode=true&characterEncoding=utf8&autoReconnect=true&serverTimezone=Asia/Seoul&useOldAliasMetadataBehavior=true&zeroDateTimeBehavior=convertToNull
+    username: tenadev2
+    password: 123456
+  # 애플리케이션 구동 시 DB 초기화 스크립트
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath*:db/${database-vendor}/schema.sql
+      data-locations: classpath*:db/${database-vendor}/data.sql
