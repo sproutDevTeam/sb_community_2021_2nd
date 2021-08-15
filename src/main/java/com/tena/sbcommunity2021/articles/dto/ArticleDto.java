@@ -8,7 +8,7 @@ import javax.validation.constraints.NotBlank;
 public class ArticleDto {
 
 	@ToString
-	@Getter
+	@Getter @Setter
 	@NoArgsConstructor(access = AccessLevel.PROTECTED)
 	public static class Save {
 

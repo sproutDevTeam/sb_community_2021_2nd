@@ -50,4 +50,8 @@ public class ArticleRepository {
 		articles.remove(article);
 	}
 
+	public void deleteAll() {
+		articles.clear();
+	}
+
 }
