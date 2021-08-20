@@ -14,6 +14,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -77,6 +78,31 @@ class ArticleControllerMockTestV2 {
 				.andExpect(jsonPath("content").value(dto.getContent()))
 				.andExpect(jsonPath("regDate").exists())
 				.andExpect(jsonPath("updateDate").exists());
+	}
+
+	@Test
+	@DisplayName("게시물 작성 요청/응답 - 400, 데이터 무결성 위반 예외 발생 시 / DataIntegrityViolationException")
+	void createArticle_fail_DataIntegrityViolationException() throws Exception {
+		//given
+		final ArticleDto.Save dto = ArticleDto.Save.builder()
+				.title("제목")
+				.content("내용")
+				.build();
+
+		when(articleService.createArticle(any())).thenThrow(DataIntegrityViolationException.class);
+
+		//when
+		final ResultActions resultActions = requestCreateArticle(dto);
+
+		//then
+		verify(articleService, times(1)).createArticle(any());
+
+		resultActions
+				.andExpect(status().isBadRequest()) // 400
+				.andExpect(jsonPath("message").value(ErrorCode.INVALID_INPUT_VALUE.getMessage()))
+				.andExpect(jsonPath("code").value(ErrorCode.INVALID_INPUT_VALUE.getCode()))
+				.andExpect(jsonPath("status").value(ErrorCode.INVALID_INPUT_VALUE.getStatus().value()))
+				.andExpect(jsonPath("errors").isEmpty());
 	}
 
 	@Test

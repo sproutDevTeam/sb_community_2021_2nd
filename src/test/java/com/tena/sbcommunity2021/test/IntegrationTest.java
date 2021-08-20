@@ -10,6 +10,12 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * 전체, 통합 테스트
+ * - 통합 테스트의 Base 클래스
+ * - 모든 Bean 을 올리고 테스트 진행
+ * - 요청부터 응답까지의 전체 플로우 테스트
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")

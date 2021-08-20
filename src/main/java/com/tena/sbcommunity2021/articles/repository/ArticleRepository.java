@@ -15,6 +15,7 @@ public interface ArticleRepository {
 	String UPDATE_SQL = "UPDATE article SET title = #{title}, content = #{content}, updateDate = #{updateDate} WHERE id = #{id}";
 	String DELETE_BY_ID_SQL = "DELETE FROM article WHERE id = #{id}";
 	String DELETE_ALL_SQL = "DELETE FROM article";
+	String EXISTS_BY_ID = "SELECT COUNT(*) FROM article WHERE id = #{id}";
 
 	@Select(FIND_ALL_SQL)
 	List<Article> findAll();
@@ -36,5 +37,8 @@ public interface ArticleRepository {
 
 	@Delete(DELETE_ALL_SQL)
 	void deleteAll();
+
+	@Select(EXISTS_BY_ID)
+	boolean existsById(Long id);
 
 }

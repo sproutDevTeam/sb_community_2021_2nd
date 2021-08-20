@@ -2,6 +2,7 @@ package com.tena.sbcommunity2021.global.errors;
 
 import com.tena.sbcommunity2021.global.errors.exception.CustomException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -51,6 +52,12 @@ public class ErrorExceptionController {
 	protected ResponseEntity<ErrorResponse> handleHttpRequestMethodNotSupportedException(final HttpRequestMethodNotSupportedException e) {
 		log.error("handleHttpRequestMethodNotSupportedException", e);
 		return ErrorResponse.toResponseEntity(ErrorCode.METHOD_NOT_ALLOWED);
+	}
+
+	@ExceptionHandler(DataIntegrityViolationException.class)
+	protected ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
+		log.error(e.getMessage());
+		return ErrorResponse.toResponseEntity(ErrorCode.INVALID_INPUT_VALUE);
 	}
 
 	@ExceptionHandler(Exception.class)
