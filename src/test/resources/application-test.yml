@@ -1,0 +1,14 @@
+database-vendor: h2
+
+spring:
+  datasource:
+    username: sa
+    password:
+    url: jdbc:h2:mem:testdb;MODE=MySQL # MySQL 구문 호환 모드 설정
+    driver-class-name: org.h2.Driver
+  # 애플리케이션 구동 시 DB 초기화 스크립트
+  sql:
+    init:
+      mode: embedded
+      schema-locations: classpath*:db/${database-vendor}/schema.sql
+      data-locations: classpath*:db/${database-vendor}/data.sql
