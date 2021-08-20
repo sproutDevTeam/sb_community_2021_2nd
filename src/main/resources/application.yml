@@ -10,7 +10,7 @@ server:
       enabled: true
       force: true
 
-# 간단 출력용 로그레벨 설정 (임시)
+# 간단 출력용 로그레벨 설정 (임시적인 디버깅 용도)
 logging:
   level:
     root: info
@@ -18,6 +18,14 @@ logging:
       springframework:
         jdbc: debug
         web: debug
+        web.servlet.mvc.method.annotation: trace
         boot:
           env: debug
           context: debug
+      mybatis:
+        spring: debug
+      apache:
+        ibatis: debug
+    com:
+      tena:
+        sbcommunity2021: debug

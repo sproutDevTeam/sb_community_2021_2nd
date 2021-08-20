@@ -7,32 +7,34 @@ import com.tena.sbcommunity2021.articles.repository.ArticleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class ArticleService {
 
 	private final ArticleRepository articleRepository;
 
-	public Article createArticle(ArticleDto.Save saveDto) {
-		return articleRepository.save(saveDto.toDomain());
-	}
-
+	@Transactional(readOnly = true)
 	public List<Article> getArticles() {
 		return articleRepository.findAll();
 	}
 
+	@Transactional(readOnly = true)
 	public Article getArticle(Long id) {
 		return articleRepository.findById(id).orElseThrow(ArticleNotFoundException::new);
 	}
 
-	public void deleteArticle(Long id) {
-		Article article = getArticle(id);
+	public Article createArticle(ArticleDto.Save saveDto) {
+		Article article = saveDto.toDomain(); // 도메인 객체로 변환
 
-		articleRepository.delete(article);
+		articleRepository.save(article); // 게시물 저장
+
+		return getArticle(article.getId()); // 저장한 게시물 조회
 	}
 
 	public Article updateArticle(Long id, ArticleDto.Save saveDto) {
@@ -40,7 +42,15 @@ public class ArticleService {
 
 		article.updateArticle(saveDto);
 
+		articleRepository.update(article);
+
 		return article;
+	}
+
+	public void deleteArticle(Long id) {
+		Article article = getArticle(id);
+
+		articleRepository.deleteById(article.getId());
 	}
 
 }

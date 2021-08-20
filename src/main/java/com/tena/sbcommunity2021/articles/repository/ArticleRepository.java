@@ -1,57 +1,40 @@
 package com.tena.sbcommunity2021.articles.repository;
 
 import com.tena.sbcommunity2021.articles.domain.Article;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Repository;
+import org.apache.ibatis.annotations.*;
 
-import javax.annotation.PostConstruct;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@Slf4j
-@Repository
-public class ArticleRepository {
+@Mapper
+public interface ArticleRepository {
 
-	// DB 내 데이터라 가정
-	private List<Article> articles;
+	String FIND_ALL_SQL = "SELECT * FROM article";
+	String FIND_BY_ID_SQL = "SELECT * FROM article WHERE id = #{id}";
+	String SAVE_SQL = "INSERT INTO article SET regDate = NOW(), updateDate = NOW(), title = #{title}, content = #{content}";
+	String UPDATE_SQL = "UPDATE article SET title = #{title}, content = #{content}, updateDate = #{updateDate} WHERE id = #{id}";
+	String DELETE_BY_ID_SQL = "DELETE FROM article WHERE id = #{id}";
+	String DELETE_ALL_SQL = "DELETE FROM article";
 
-	@PostConstruct
-	private void initArticles() {
-		articles = new ArrayList<>();
+	@Select(FIND_ALL_SQL)
+	List<Article> findAll();
 
-		for (int i = 1; i <= 10; i++) {
-			Article article = new Article("제목" + i, "내용" + i);
-			articles.add(article);
-		}
+	@Select(FIND_BY_ID_SQL)
+	Optional<Article> findById(Long id);
 
-		log.info("articles init size: {}", articles.size());
-		log.info("articles : {}", articles);
-	}
+	// Insert 시 자동 생성된 PK 맵핑 : @Optional 또는 @SelectKey 방식 중 택 1
+	// @Options(useGeneratedKeys = true, keyProperty = "id")
+	@SelectKey(statement = "SELECT LAST_INSERT_ID()", keyProperty = "id", before = false, resultType = long.class)
+	@Insert(SAVE_SQL)
+	void save(Article article);
 
+	@Update(UPDATE_SQL)
+	void update(Article article);
 
-	public Article save(Article article) {
-		articles.add(article);
+	@Delete(DELETE_BY_ID_SQL)
+	void deleteById(Long id);
 
-		return article;
-	}
-
-	public List<Article> findAll() {
-		return articles == null ? List.of() : articles;
-	}
-
-	public Optional<Article> findById(Long id) {
-		return articles.stream()
-				.filter(article -> id.equals(article.getId()))
-				.findFirst();
-	}
-
-	public void delete(Article article) {
-		articles.remove(article);
-	}
-
-	public void deleteAll() {
-		articles.clear();
-	}
+	@Delete(DELETE_ALL_SQL)
+	void deleteAll();
 
 }
