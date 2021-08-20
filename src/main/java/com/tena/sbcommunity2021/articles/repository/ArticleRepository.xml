@@ -16,9 +16,15 @@
 
     <update id="update">
         UPDATE article
-        SET title      = #{title},
-            content    = #{content},
+        <set>
+            <if test='title != null and title != ""'>
+                title = #{title},
+            </if>
+            <if test='content != null and content != ""'>
+                content = #{content},
+            </if>
             updateDate = #{updateDate}
+        </set>
         WHERE id = #{id}
     </update>
 
@@ -49,34 +55,3 @@
     </delete>
 
 </mapper>
-
-
-<!--
-[참고] Insert 시 자동 생성된 PK 맵핑의 예
-
-1. @SelectKey(statement = "SELECT LAST_INSERT_ID()", keyProperty = "id", before = false, resultType = long.class)
--> XML 방식으로 교체 시
-
-<insert id="save">
-    <selectKey keyProperty="id" resultType="long" order="AFTER">
-        SELECT LAST_INSERT_ID()
-    </selectKey>
-    INSERT INTO article
-    SET regDate = NOW(),
-    updateDate = NOW(),
-    title = #{title},
-    content = #{content}
-</insert>
-
-
-2. @Options(useGeneratedKeys = true, keyProperty = "id")
--> XML 방식으로 교체 시
-
-<insert id="save" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO article
-    SET regDate = NOW(),
-    updateDate = NOW(),
-    title = #{title},
-    content = #{content}
-</insert>
--->
