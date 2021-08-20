@@ -10,6 +10,12 @@ server:
       enabled: true
       force: true
 
+mybatis:
+  type-aliases-package: com.tena.sbcommunity2021.**.domain # resultType, parameterType 패키지 경로 생략
+  configuration:
+    map-underscore-to-camel-case: true # 컬럼명(snake_case) -> 필드명(camelCase) 자동 변환
+
+
 # 간단 출력용 로그레벨 설정 (임시적인 디버깅 용도)
 logging:
   level:

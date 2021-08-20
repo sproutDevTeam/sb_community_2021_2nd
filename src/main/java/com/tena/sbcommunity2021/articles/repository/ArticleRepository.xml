@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.tena.sbcommunity2021.articles.repository.ArticleRepository">
+
+    <insert id="save">
+        <selectKey keyProperty="id" resultType="long" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        INSERT INTO article
+        SET regDate = NOW(),
+        updateDate = NOW(),
+        title = #{title},
+        content = #{content}
+    </insert>
+
+    <update id="update">
+        UPDATE article
+        SET title      = #{title},
+            content    = #{content},
+            updateDate = #{updateDate}
+        WHERE id = #{id}
+    </update>
+
+    <select id="findAll" resultType="Article">
+        SELECT *
+        FROM article
+        ORDER BY id DESC
+    </select>
+
+    <select id="findById" resultType="Article">
+        SELECT *
+        FROM article
+        WHERE id = #{id}
+    </select>
+
+    <select id="existsById" resultType="boolean">
+        SELECT COUNT(*)
+        FROM article
+        WHERE id = #{id}
+    </select>
+
+    <delete id="deleteById">
+        DELETE FROM article WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteAll">
+        DELETE FROM article
+    </delete>
+
+</mapper>
+
+
+<!--
+[참고] Insert 시 자동 생성된 PK 맵핑의 예
+
+1. @SelectKey(statement = "SELECT LAST_INSERT_ID()", keyProperty = "id", before = false, resultType = long.class)
+-> XML 방식으로 교체 시
+
+<insert id="save">
+    <selectKey keyProperty="id" resultType="long" order="AFTER">
+        SELECT LAST_INSERT_ID()
+    </selectKey>
+    INSERT INTO article
+    SET regDate = NOW(),
+    updateDate = NOW(),
+    title = #{title},
+    content = #{content}
+</insert>
+
+
+2. @Options(useGeneratedKeys = true, keyProperty = "id")
+-> XML 방식으로 교체 시
+
+<insert id="save" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO article
+    SET regDate = NOW(),
+    updateDate = NOW(),
+    title = #{title},
+    content = #{content}
+</insert>
+-->

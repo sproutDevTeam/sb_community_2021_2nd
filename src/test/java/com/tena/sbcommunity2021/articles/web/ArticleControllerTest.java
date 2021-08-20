@@ -143,20 +143,21 @@ public class ArticleControllerTest extends IntegrationTest {
 		final ResultActions resultActions = requestGetAllArticles();
 
 		//then
+		// ORDER BY id DESC;
 		final MvcResult mvcResult = resultActions
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$").isArray())
 				.andExpect(jsonPath("$.length()").value(2))
 				.andExpect(jsonPath("$[0]").exists())
-				.andExpect(jsonPath("$[0].id").value(article.getId()))
-				.andExpect(jsonPath("$[0].title").value(article.getTitle()))
-				.andExpect(jsonPath("$[0].content").value(article.getContent()))
+				.andExpect(jsonPath("$[0].id").value(article2.getId()))
+				.andExpect(jsonPath("$[0].title").value(article2.getTitle()))
+				.andExpect(jsonPath("$[0].content").value(article2.getContent()))
 				.andExpect(jsonPath("$[0].regDate").exists())
 				.andExpect(jsonPath("$[0].updateDate").exists())
 				.andExpect(jsonPath("$[1]").exists())
-				.andExpect(jsonPath("$[1].id").value(article2.getId()))
-				.andExpect(jsonPath("$[1].title").value(article2.getTitle()))
-				.andExpect(jsonPath("$[1].content").value(article2.getContent()))
+				.andExpect(jsonPath("$[1].id").value(article.getId()))
+				.andExpect(jsonPath("$[1].title").value(article.getTitle()))
+				.andExpect(jsonPath("$[1].content").value(article.getContent()))
 				.andExpect(jsonPath("$[1].regDate").exists())
 				.andExpect(jsonPath("$[1].updateDate").exists())
 				.andReturn();
