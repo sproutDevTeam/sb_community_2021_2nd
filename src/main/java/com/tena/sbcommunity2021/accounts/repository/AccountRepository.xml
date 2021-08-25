@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.tena.sbcommunity2021.accounts.repository.AccountRepository">
+
+    <insert id="save">
+        <selectKey keyProperty="id" resultType="long" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        INSERT INTO account
+        SET regDate = NOW(),
+        updateDate = NOW(),
+        username = #{username},
+        `password` = #{password},
+        `name` = #{name},
+        mobileNumber = #{mobileNumber},
+        nickname = #{nickname},
+        email = #{email}
+    </insert>
+
+    <select id="findById" resultType="Account">
+        SELECT *
+        FROM account AS A
+        WHERE A.id = #{id}
+    </select>
+
+</mapper>
