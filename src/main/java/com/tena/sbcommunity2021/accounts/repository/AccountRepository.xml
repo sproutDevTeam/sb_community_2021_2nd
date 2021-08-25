@@ -24,4 +24,22 @@
         WHERE A.id = #{id}
     </select>
 
+    <select id="existsById" resultType="boolean">
+        SELECT COUNT(*)
+        FROM account AS A
+        WHERE A.id = #{id}
+    </select>
+
+    <select id="existsByUsername" resultType="boolean">
+        SELECT COUNT(*)
+        FROM account AS A
+        WHERE A.username = #{username}
+    </select>
+
+    <select id="existsByEmail" resultType="boolean">
+        SELECT COUNT(*)
+        FROM account AS A
+        WHERE A.email = #{email}
+    </select>
+
 </mapper>

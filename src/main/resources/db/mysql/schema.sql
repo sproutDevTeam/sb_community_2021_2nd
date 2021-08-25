@@ -25,13 +25,13 @@ CREATE TABLE `account`
     id           INT(10) UNSIGNED    NOT NULL PRIMARY KEY AUTO_INCREMENT,
     regDate      DATETIME            NOT NULL,
     updateDate   DATETIME            NOT NULL,
-    username     CHAR(20) UNIQUE     NOT NULL COMMENT '로그인 ID',
+    username     CHAR(20) UNIQUE     NOT NULL COMMENT '로그인 ID', -- Unique Index
     `password`   CHAR(60)            NOT NULL COMMENT '로그인 PW',
     authLevel    SMALLINT(2) UNSIGNED         DEFAULT 3 COMMENT '권한레벨(3:일반, 7:관리자)',
     `name`       CHAR(20)            NOT NULL,
     nickname     CHAR(20)            NOT NULL,
     mobileNumber CHAR(20)            NOT NULL,
-    email        CHAR(50) UNIQUE     NOT NULL,
+    email        CHAR(50) UNIQUE     NOT NULL, -- Unique Index
     delStatus    TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT '탈퇴여부(0:탈퇴전, 1:탈퇴)',
     delDate      DATETIME COMMENT '탈퇴일자'
 );
