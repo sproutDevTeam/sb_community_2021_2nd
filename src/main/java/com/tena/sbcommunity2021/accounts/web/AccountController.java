@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import javax.validation.Valid;
+
 @Slf4j
 @Controller
 @RequestMapping("/accounts")
@@ -24,7 +26,7 @@ public class AccountController {
 	@RequestMapping("/new")
 	@ResponseBody
 	@ResponseStatus(HttpStatus.CREATED)
-	public AccountDto.Response createAccount(AccountDto.Save saveDto) {
+	public AccountDto.Response createAccount(@Valid AccountDto.Save saveDto) {
 		Account createdAccount = accountService.createAccount(saveDto);
 
 		return modelMapper.map(createdAccount, AccountDto.Response.class);
