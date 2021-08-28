@@ -1,5 +1,6 @@
 package com.tena.sbcommunity2021.accounts.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
@@ -60,9 +61,15 @@ public class AccountDto {
 		private String mobileNumber;
 		private String email;
 
+		@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 		private LocalDateTime regDate;
+
+		@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 		private LocalDateTime updateDate;
+
 		private boolean delStatus;
+
+		@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 		private LocalDateTime delDate;
 	}
 

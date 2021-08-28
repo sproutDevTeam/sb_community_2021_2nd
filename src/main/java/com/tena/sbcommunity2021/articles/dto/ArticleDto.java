@@ -1,8 +1,10 @@
 package com.tena.sbcommunity2021.articles.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import javax.validation.constraints.NotBlank;
+import java.time.LocalDateTime;
 
 public class ArticleDto {
 
@@ -14,10 +16,10 @@ public class ArticleDto {
 	@Builder
 	public static class Save {
 
-		@NotBlank
+		@NotBlank(message = "제목을 입력해주세요.")
 		private String title;
 
-		@NotBlank
+		@NotBlank(message = "내용을 입력해주세요.")
 		private String content;
 
 	}
@@ -29,13 +31,18 @@ public class ArticleDto {
 	@ToString
 	@Builder
 	public static class Response {
+
 		private Long id;
+
 		private String title;
+
 		private String content;
 
-		// TODO : LocalDateTime + @JsonFormat 사용 고려
-		private String regDate;
-		private String updateDate;
+		@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+		private LocalDateTime regDate;
+
+		@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+		private LocalDateTime updateDate;
 	}
 
 }
