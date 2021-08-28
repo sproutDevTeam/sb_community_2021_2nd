@@ -6,6 +6,7 @@ import com.tena.sbcommunity2021.articles.exception.ArticleNotFoundException;
 import com.tena.sbcommunity2021.articles.repository.ArticleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,7 @@ import java.util.List;
 public class ArticleService {
 
 	private final ArticleRepository articleRepository;
+	private final ModelMapper modelMapper;
 
 	@Transactional(readOnly = true)
 	public List<Article> getArticles() {
@@ -30,7 +32,7 @@ public class ArticleService {
 	}
 
 	public Article createArticle(ArticleDto.Save saveDto) {
-		Article article = saveDto.toDomain(); // 도메인 객체로 변환
+		Article article = modelMapper.map(saveDto, Article.class); // 도메인 객체로 변환
 
 		articleRepository.save(article); // 게시물 저장
 
@@ -40,7 +42,8 @@ public class ArticleService {
 	public Article updateArticle(Long id, ArticleDto.Save saveDto) {
 		Article article = getArticle(id);
 
-		article.updateArticle(saveDto);
+		modelMapper.map(saveDto, article);
+		article.renewUpdateDate();
 
 		articleRepository.update(article);
 

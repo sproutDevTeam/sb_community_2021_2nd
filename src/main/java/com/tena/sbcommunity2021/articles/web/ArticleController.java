@@ -5,17 +5,14 @@ import com.tena.sbcommunity2021.articles.dto.ArticleDto;
 import com.tena.sbcommunity2021.articles.service.ArticleService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Controller
@@ -24,15 +21,20 @@ import java.util.stream.Collectors;
 public class ArticleController {
 
 	private final ArticleService articleService;
+	private final ModelMapper modelMapper;
 
 	@GetMapping
 	@ResponseBody
 	public List<ArticleDto.Response> getArticles() {
 		List<Article> articles = articleService.getArticles();
 		
-		return articles.stream()
-				.map(ArticleDto.Response::new)
-				.collect(Collectors.toList());
+		// 👉 ModelMapper 에서 List 맵핑 시 Generic 변경 방법 2가지
+		// 방법 1. 주로 Stream 을 돌리겠지만,
+		// List<ArticleDto.Response> body = articles.stream().map(a -> modelMapper.map(a, ArticleDto.Response.class)).collect(Collectors.toList());
+		// 방법 2. TypeToken 을 사용하는 방법도 있다.
+		List<ArticleDto.Response> body = modelMapper.map(articles, new TypeToken<List<ArticleDto.Response>>() {}.getType());
+
+		return body;
 	}
 
 	@GetMapping("/{id}")
@@ -40,7 +42,7 @@ public class ArticleController {
 	public ArticleDto.Response getArticle(@PathVariable("id") Long id) {
 		Article article = articleService.getArticle(id);
 
-		return new ArticleDto.Response(article);
+		return modelMapper.map(article, ArticleDto.Response.class);
 	}
 
 	@RequestMapping("/new")
@@ -49,7 +51,7 @@ public class ArticleController {
 	public ArticleDto.Response createArticle(@Valid ArticleDto.Save saveDto) {
 		Article article = articleService.createArticle(saveDto);
 
-		return new ArticleDto.Response(article);
+		return modelMapper.map(article, ArticleDto.Response.class);
 	}
 
 	@RequestMapping("/{id}/edit")
@@ -57,7 +59,7 @@ public class ArticleController {
 	public ArticleDto.Response updateArticle(@PathVariable("id") Long id, @Valid ArticleDto.Save saveDto) {
 		Article article = articleService.updateArticle(id, saveDto);
 
-		return new ArticleDto.Response(article);
+		return modelMapper.map(article, ArticleDto.Response.class);
 	}
 
 	@GetMapping("/{id}/delete")
