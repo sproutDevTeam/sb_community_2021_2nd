@@ -43,7 +43,6 @@ public class ArticleService {
 		Article article = getArticle(id);
 
 		modelMapper.map(saveDto, article);
-		article.renewUpdateDate();
 
 		articleRepository.update(article);
 

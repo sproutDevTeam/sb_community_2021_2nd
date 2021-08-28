@@ -20,8 +20,9 @@ public class Article {
 
 	private LocalDateTime updateDate;
 
-	public void renewUpdateDate() {
-		this.updateDate = LocalDateTime.now();
-	}
+// [기존] 수정일자 갱신
+//	public void renewUpdateDate() {
+//		this.updateDate = LocalDateTime.now();
+//	}
 
 }

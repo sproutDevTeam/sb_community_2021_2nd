@@ -42,6 +42,9 @@ public class AccountDto {
 		@NotBlank(message = "이메일을 입력해주세요.")
 		private String email;
 
+		@Builder.Default
+		private LocalDateTime updateDate = LocalDateTime.now();
+
 	}
 
 	@JsonIgnoreProperties({"password"})
