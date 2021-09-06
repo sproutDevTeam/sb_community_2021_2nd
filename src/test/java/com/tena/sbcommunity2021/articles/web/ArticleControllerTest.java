@@ -15,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static io.florianlopes.spring.test.web.servlet.request.MockMvcRequestBuilderUtils.postForm;
@@ -194,16 +195,11 @@ public class ArticleControllerTest extends IntegrationTest {
 		//given
 		final Article article = articleSetup.createArticle(); // 기존 게시물
 
-		// 응답 DTO 의 updateDate 는 소수점 나노초를 전부 제거하고, yyyy-MM-dd HH:mm:ss 로 포맷팅된 문자열을 리턴함
-		// 테스트 시 updateDate 가 나노초, 밀리초 단위로 미세한 차이만 생겨서 2초간의 텀을 강제
-		Thread.sleep(2000);
-
-		final ArticleDto.Response resp = new ArticleDto.Response(article);
-		final String previousDate = resp.getUpdateDate(); // 업데이트 전 updateDate
+		final ArticleDto.Response resp = modelMapper.map(article, ArticleDto.Response.class);
 
 		//when
 		final ArticleDto.Save req = ArticleDto.Save.builder()
-				.title("제목을 수정!")
+				.title("제목 수정")
 				.content(resp.getContent())
 				.build();
 
@@ -213,7 +209,7 @@ public class ArticleControllerTest extends IntegrationTest {
 		final MvcResult mvcResult = resultActions
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("title").value(req.getTitle()))
-				.andExpect(jsonPath("updateDate", not(previousDate))) //업데이트 후 updateDate 도 수정됨
+				.andExpect(jsonPath("updateDate", not(resp.getUpdateDate()))) //업데이트 후 updateDate 도 수정됨
 				.andReturn();
 
 		assertThat(article.getRegDate()).isNotEqualTo(article.getUpdateDate());
@@ -221,12 +217,11 @@ public class ArticleControllerTest extends IntegrationTest {
 		// for increasing coverage
 		final String json = mvcResult.getResponse().getContentAsString();
 		final ArticleDto.Response result = objectMapper.readValue(json, ArticleDto.Response.class);
-		final String currentDate = result.getUpdateDate(); //업데이트 이후 updateDate
 
-		log.info("previousDate = {}", previousDate);
-		log.info("currentDate = {}", currentDate);
+		log.info("previousDate = {}", article.getUpdateDate());
+		log.info("currentDate = {}", result.getUpdateDate());
 
-		assertThat(currentDate).isNotEqualTo(previousDate);
+		assertThat(result.getUpdateDate()).isNotEqualTo(article.getUpdateDate());
 	}
 
 	@Test

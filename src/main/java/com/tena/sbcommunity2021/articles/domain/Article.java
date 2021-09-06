@@ -4,10 +4,13 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(of = {"id"})
 @ToString
 @Getter
+@Setter
+@Builder
 public class Article {
 
 	private Long id;

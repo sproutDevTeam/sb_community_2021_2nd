@@ -107,7 +107,7 @@ class ArticleRepositoryTest extends RepositoryTest {
                 .content("내용222")
                 .build();
 
-        existingArticle.updateArticle(dto);
+        modelMapper.map(dto, existingArticle);
 
         // when
         articleRepository.update(existingArticle);

@@ -2,8 +2,10 @@ package com.tena.sbcommunity2021.articles.service;
 
 import com.tena.sbcommunity2021.articles.domain.Article;
 import com.tena.sbcommunity2021.articles.dto.ArticleDto;
+import com.tena.sbcommunity2021.articles.exception.ArticleNotCreatedException;
 import com.tena.sbcommunity2021.articles.exception.ArticleNotFoundException;
 import com.tena.sbcommunity2021.articles.repository.ArticleRepository;
+import com.tena.sbcommunity2021.global.errors.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -36,15 +38,15 @@ public class ArticleService {
 
 		articleRepository.save(article); // 게시물 저장
 
-		return getArticle(article.getId()); // 저장한 게시물 조회
+		return articleRepository.findById(article.getId()).orElseThrow(ArticleNotCreatedException::new); // 저장한 게시물 조회
 	}
 
 	public Article updateArticle(Long id, ArticleDto.Save saveDto) {
-		Article article = getArticle(id);
+		Article article = getArticle(id); // 기존 게시물 조회
 
-		modelMapper.map(saveDto, article);
+		modelMapper.map(saveDto, article); // 기존값 변경
 
-		articleRepository.update(article);
+		articleRepository.update(article); // 게시물 업데이트
 
 		return article;
 	}

@@ -20,9 +20,8 @@ public enum ErrorCode {
 	INTERNAL_SERVER_ERROR("C-500", "내부 서버 오류입니다. 관리자에게 문의해 주세요.", HttpStatus.INTERNAL_SERVER_ERROR),
 
 	/* Article */
-	ARTICLE_NOT_FOUND("A-001", "게시물이 존재하지 않습니다.", HttpStatus.NOT_FOUND)
-
-	;
+	ARTICLE_NOT_FOUND("A-001", "게시물이 존재하지 않습니다.", HttpStatus.NOT_FOUND),
+	ARTICLE_NOT_CREATED("A-002", "게시물 작성 중 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
 
 	private final String code;
 	private final String message;

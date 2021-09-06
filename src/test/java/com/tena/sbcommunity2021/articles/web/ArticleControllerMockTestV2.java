@@ -8,12 +8,15 @@ import com.tena.sbcommunity2021.articles.exception.ArticleNotFoundException;
 import com.tena.sbcommunity2021.articles.service.ArticleService;
 import com.tena.sbcommunity2021.global.errors.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.NameTokenizers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -30,6 +33,7 @@ import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
+import static org.modelmapper.config.Configuration.AccessLevel.PRIVATE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -48,6 +52,16 @@ class ArticleControllerMockTestV2 {
 	@MockBean
 	private ArticleService articleService;
 
+	@SpyBean
+	private ModelMapper modelMapper;
+
+	@BeforeEach
+	void setUp() {
+		modelMapper.getConfiguration()
+				.setDestinationNameTokenizer(NameTokenizers.UNDERSCORE)
+				.setSourceNameTokenizer(NameTokenizers.UNDERSCORE);
+	}
+
 	@Test
 	@DisplayName("게시물 작성 요청/응답 - 201, 작성 성공 시")
 	void createArticle_success() throws Exception {
@@ -57,12 +71,14 @@ class ArticleControllerMockTestV2 {
 				.content("내용")
 				.build();
 
-		final Article article = mock(Article.class);
-		doReturn(1L).when(article).getId();
-		doReturn(dto.getTitle()).when(article).getTitle();
-		doReturn(dto.getContent()).when(article).getContent();
-		doReturn(LocalDateTime.now()).when(article).getRegDate();
-		doReturn(LocalDateTime.now()).when(article).getUpdateDate();
+		final LocalDateTime createdAt = LocalDateTime.of(2021, 11, 11, 11, 11);
+		final Article article = Article.builder()
+				.title(dto.getTitle())
+				.content(dto.getContent())
+				.id(1L)
+				.regDate(createdAt)
+				.updateDate(createdAt)
+				.build();
 
 		when(articleService.createArticle(any())).thenReturn(article);
 
@@ -141,12 +157,14 @@ class ArticleControllerMockTestV2 {
 	@DisplayName("게시물 조회 요청/응답 - 200, 조회 성공 시")
 	void getArticle_success() throws Exception {
 		//given
-		final Article article = mock(Article.class);
-		doReturn(1L).when(article).getId();
-		doReturn("제목").when(article).getTitle();
-		doReturn("내용").when(article).getContent();
-		doReturn(LocalDateTime.now()).when(article).getRegDate();
-		doReturn(LocalDateTime.now()).when(article).getUpdateDate();
+		final LocalDateTime createdAt = LocalDateTime.of(2021, 11, 11, 11, 11);
+		final Article article = Article.builder()
+				.title("제목")
+				.content("내용")
+				.id(1L)
+				.regDate(createdAt)
+				.updateDate(createdAt)
+				.build();
 
 		when(articleService.getArticle(anyLong())).thenReturn(article);
 
@@ -180,7 +198,7 @@ class ArticleControllerMockTestV2 {
 	@DisplayName("게시물 조회 요청/응답 - 404, 게시물이 존재하지 않는 경우")
 	void getArticle_404() throws Exception {
 		//given
-		Mockito.when(articleService.getArticle(anyLong())).thenThrow(new ArticleNotFoundException());
+		when(articleService.getArticle(anyLong())).thenThrow(new ArticleNotFoundException());
 
 		//when
 		final ResultActions resultActions = requestGetArticle();
@@ -208,19 +226,23 @@ class ArticleControllerMockTestV2 {
 	@DisplayName("전체 게시물 조회 요청/응답 - 200, 조회 성공 시")
 	void getArticles_success() throws Exception {
 		//given
-		final Article article1 = mock(Article.class);
-		doReturn(1L).when(article1).getId();
-		doReturn("제목 1").when(article1).getTitle();
-		doReturn("내용 1").when(article1).getContent();
-		doReturn(LocalDateTime.now()).when(article1).getRegDate();
-		doReturn(LocalDateTime.now()).when(article1).getUpdateDate();
+		final LocalDateTime createdAt1 = LocalDateTime.of(2021, 11, 11, 11, 11);
+		final Article article1 = Article.builder()
+				.title("제목 1")
+				.content("내용 1")
+				.id(1L)
+				.regDate(createdAt1)
+				.updateDate(createdAt1)
+				.build();
 
-		final Article article2 = mock(Article.class);
-		doReturn(2L).when(article2).getId();
-		doReturn("제목 2").when(article2).getTitle();
-		doReturn("내용 2").when(article2).getContent();
-		doReturn(LocalDateTime.now()).when(article2).getRegDate();
-		doReturn(LocalDateTime.now()).when(article2).getUpdateDate();
+		final LocalDateTime createdAt2 = createdAt1.plusYears(1).plusMonths(1).plusDays(1).plusHours(1).plusMinutes(1).plusSeconds(1);
+		final Article article2 = Article.builder()
+				.title("제목 2")
+				.content("내용 2")
+				.id(2L)
+				.regDate(createdAt1)
+				.updateDate(createdAt1)
+				.build();
 
 		when(articleService.getArticles()).thenReturn(List.of(article1, article2));
 
@@ -268,7 +290,7 @@ class ArticleControllerMockTestV2 {
 	@DisplayName("전체 게시물 조회 요청/응답 - 200, 게시물이 하나도 존재하지 않을 경우")
 	void getArticles_nothingAtAll() throws Exception {
 		//given
-		Mockito.when(articleService.getArticles()).thenReturn(Collections.emptyList()); // 비어있는 리스트 반환
+		when(articleService.getArticles()).thenReturn(Collections.emptyList()); // 비어있는 리스트 반환
 
 		//when
 		final ResultActions resultActions = requestGetAllArticles();
@@ -285,49 +307,35 @@ class ArticleControllerMockTestV2 {
 	@Test
 	void updateArticle_success() throws Exception {
 		//given
-		final Article article = mock(Article.class);
-		final LocalDateTime createdAt = LocalDateTime.of(2020, 11, 11, 11, 30, 0);
+		final LocalDateTime createdAt = LocalDateTime.of(2021, 11, 11, 11, 11);
+		final Article article = Article.builder()
+				.title("기존 제목")
+				.content("기존 내용")
+				.id(1L)
+				.regDate(createdAt)
+				.updateDate(createdAt)
+				.build();
 
-		when(article.getRegDate()).thenReturn(createdAt);
-		when(article.getUpdateDate()).thenReturn(createdAt); //updateDate 가 regDate 와 같은 시점
-		when(article.getId()).thenReturn(1L);
-		when(article.getTitle()).thenReturn("기존 제목");
-		when(article.getContent()).thenReturn("기존 내용");
+		final LocalDateTime updatedAt = createdAt.plusYears(1).plusMonths(1).plusDays(1).plusHours(1).plusMinutes(1).plusSeconds(1);
+		final ArticleDto.Save dto = ArticleDto.Save.builder()
+				.title("제목 수정") // 제목만 변경
+				.content(article.getContent()) // 내용은 그대로
+				.updateDate(updatedAt)
+				.build();
 
-
-		// articleService.updateArticle 메서드 목킹
 		when(articleService.updateArticle(anyLong(), any())).thenAnswer(invocation -> {
-			final ArticleDto.Save argument = invocation.getArgument(1, ArticleDto.Save.class);
-
-			article.updateArticle(argument);
-
+			article.setTitle(dto.getTitle());
+			article.setContent(dto.getContent());
+			article.setUpdateDate(dto.getUpdateDate());
 			return article;
 		});
-
-		// article.updateArticle 메서드 목킹
-		doAnswer(invocation -> {
-			final ArticleDto.Save argument = invocation.getArgument(0, ArticleDto.Save.class);
-			final LocalDateTime updatedAt = LocalDateTime.now();
-
-			when(article.getUpdateDate()).thenReturn(updatedAt); //updateDate 변경 시점
-			when(article.getTitle()).thenReturn(argument.getTitle());
-			when(article.getContent()).thenReturn(argument.getContent());
-
-			return article;
-		}).when(article).updateArticle(any());
-
-
-		final ArticleDto.Save dto = ArticleDto.Save.builder()
-				.title("제목 수정") // 제목만 변경하고
-				.content(article.getContent()) // 내용은 그대로 둠
-				.build();
 
 		//when
 		final ResultActions resultActions = requestUpdateArticle(dto);
 
 		//then
 		verify(articleService, times(1)).updateArticle(anyLong(), any());
-		verify(article, times(1)).updateArticle(any());
+		verify(modelMapper, times(1)).map(any(), any());
 
 		resultActions
 				.andExpect(status().isOk())

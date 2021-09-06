@@ -10,20 +10,19 @@ import com.tena.sbcommunity2021.articles.service.ArticleService;
 import com.tena.sbcommunity2021.global.errors.ErrorCode;
 import com.tena.sbcommunity2021.global.errors.ErrorExceptionController;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.stubbing.Answer;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.NameTokenizers;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -34,7 +33,6 @@ import java.util.List;
 import static io.florianlopes.spring.test.web.servlet.request.MockMvcRequestBuilderUtils.postForm;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
@@ -52,6 +50,9 @@ class ArticleControllerMockTest {
 	@Mock
 	private ArticleService articleService;
 
+	@Spy
+	private ModelMapper modelMapper;
+
 	private MockMvc mockMvc;
 	private ObjectMapper objectMapper;
 
@@ -63,6 +64,9 @@ class ArticleControllerMockTest {
 		objectMapper = new ObjectMapper()
 				.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 				.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, true);
+		modelMapper.getConfiguration()
+				.setDestinationNameTokenizer(NameTokenizers.UNDERSCORE)
+				.setSourceNameTokenizer(NameTokenizers.UNDERSCORE);
 	}
 
 	@Test
@@ -78,8 +82,9 @@ class ArticleControllerMockTest {
 		doReturn(1L).when(article).getId();
 		doReturn(dto.getTitle()).when(article).getTitle();
 		doReturn(dto.getContent()).when(article).getContent();
-		doReturn(LocalDateTime.now()).when(article).getRegDate();
-		doReturn(LocalDateTime.now()).when(article).getUpdateDate();
+		final LocalDateTime regDate = LocalDateTime.of(2021, 11, 11, 11, 11);
+		doReturn(regDate).when(article).getRegDate();
+		doReturn(regDate).when(article).getUpdateDate();
 
 		when(articleService.createArticle(any())).thenReturn(article);
 
