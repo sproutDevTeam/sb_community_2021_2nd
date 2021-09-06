@@ -9,6 +9,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -20,13 +22,17 @@ public class AccountService {
 
 	@Transactional
 	public Account createAccount(AccountDto.Save saveDto) {
-		Account account = modelMapper.map(saveDto, Account.class);
+		Account account = modelMapper.map(saveDto, Account.class); // DTO to Domain Object
 
 		accountRepository.save(account);
 
 		Account savedAccount = accountRepository.findById(account.getId());
 
 		return savedAccount;
+	}
+
+	public List<Account> getAccounts() {
+		return accountRepository.findAll();
 	}
 
 }

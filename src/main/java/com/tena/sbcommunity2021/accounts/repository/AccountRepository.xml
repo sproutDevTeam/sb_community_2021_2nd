@@ -42,4 +42,10 @@
         WHERE A.email = #{email}
     </select>
 
+    <select id="findAll" resultType="Account">
+        SELECT *
+        FROM account
+        ORDER BY id DESC
+    </select>
+
 </mapper>
