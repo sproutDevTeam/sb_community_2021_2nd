@@ -3,6 +3,7 @@ package com.tena.sbcommunity2021.articles.web;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.tena.sbcommunity2021.articles.domain.Article;
 import com.tena.sbcommunity2021.articles.dto.ArticleDto;
+import com.tena.sbcommunity2021.global.commons.ResponseData;
 import com.tena.sbcommunity2021.global.errors.ErrorCode;
 import com.tena.sbcommunity2021.test.IntegrationTest;
 import com.tena.sbcommunity2021.test.setup.ArticleSetup;
@@ -51,13 +52,17 @@ public class ArticleControllerTest extends IntegrationTest {
 		//then
 		resultActions
 				.andExpect(status().isCreated()) // 201
-				.andExpect(jsonPath("id").exists())
-				.andExpect(jsonPath("id", greaterThan(0)))
-				.andExpect(jsonPath("id").value(greaterThan(0)))
-				.andExpect(jsonPath("title").value(dto.getTitle()))
-				.andExpect(jsonPath("content").value(dto.getContent()))
-				.andExpect(jsonPath("regDate").exists())
-				.andExpect(jsonPath("updateDate").exists());
+				.andExpect(content().string(containsString("게시물이 작성되었습니다.")))
+				.andExpect(jsonPath("resultCode").value("S-1"))
+				.andExpect(jsonPath("message").value(startsWith("게시물이 작성되었습니다.")))
+				.andExpect(jsonPath("success").value(true))
+				.andExpect(jsonPath("body.id").exists())
+				.andExpect(jsonPath("body.id", greaterThan(0)))
+				.andExpect(jsonPath("body.id").value(greaterThan(0)))
+				.andExpect(jsonPath("body.title").value(dto.getTitle()))
+				.andExpect(jsonPath("body.content").value(dto.getContent()))
+				.andExpect(jsonPath("body.regDate").exists())
+				.andExpect(jsonPath("body.updateDate").exists());
 	}
 
 	@Test
@@ -74,6 +79,7 @@ public class ArticleControllerTest extends IntegrationTest {
 		//then
 		resultActions
 				.andExpect(status().isBadRequest()) // 400
+				.andExpect(content().string(containsString("잘못된 입력 값이 포함되어 있습니다.")))
 				.andExpect(jsonPath("message").value(ErrorCode.INVALID_INPUT_VALUE.getMessage()))
 				.andExpect(jsonPath("code").value(ErrorCode.INVALID_INPUT_VALUE.getCode()))
 				.andExpect(jsonPath("status").value(ErrorCode.INVALID_INPUT_VALUE.getStatus().value()))
@@ -100,11 +106,15 @@ public class ArticleControllerTest extends IntegrationTest {
 		//then
 		final MvcResult mvcResult = resultActions
 				.andExpect(status().isOk()) // 200
-				.andExpect(jsonPath("id").exists())
-				.andExpect(jsonPath("title").value(article.getTitle()))
-				.andExpect(jsonPath("content").value(article.getContent()))
-				.andExpect(jsonPath("regDate").exists())
-				.andExpect(jsonPath("updateDate").exists())
+				.andExpect(content().string(containsString("번 게시물입니다.")))
+				.andExpect(jsonPath("resultCode").value("S-1"))
+				.andExpect(jsonPath("message").value(endsWith("번 게시물입니다.")))
+				.andExpect(jsonPath("success").value(true))
+				.andExpect(jsonPath("body.id").exists())
+				.andExpect(jsonPath("body.title").value(article.getTitle()))
+				.andExpect(jsonPath("body.content").value(article.getContent()))
+				.andExpect(jsonPath("body.regDate").exists())
+				.andExpect(jsonPath("body.updateDate").exists())
 				.andReturn();
 
 		// 참고: JSON 역직렬화 (Deserialize JSON String to Object)
@@ -127,6 +137,9 @@ public class ArticleControllerTest extends IntegrationTest {
 		//then
 		resultActions
 				.andExpect(status().isNotFound()) // 404
+				.andExpect(content().string(containsString("A-001")))
+				.andExpect(content().string(containsString("게시물이 존재하지 않습니다.")))
+				.andExpect(jsonPath("message").value(endsWith("게시물이 존재하지 않습니다.")))
 				.andExpect(jsonPath("message").value(ErrorCode.ARTICLE_NOT_FOUND.getMessage()))
 				.andExpect(jsonPath("code").value(ErrorCode.ARTICLE_NOT_FOUND.getCode()))
 				.andExpect(jsonPath("status").value(ErrorCode.ARTICLE_NOT_FOUND.getStatus().value()))
@@ -146,29 +159,33 @@ public class ArticleControllerTest extends IntegrationTest {
 		//then
 		// ORDER BY id DESC;
 		final MvcResult mvcResult = resultActions
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$").isArray())
-				.andExpect(jsonPath("$.length()").value(2))
-				.andExpect(jsonPath("$[0]").exists())
-				.andExpect(jsonPath("$[0].id").value(article2.getId()))
-				.andExpect(jsonPath("$[0].title").value(article2.getTitle()))
-				.andExpect(jsonPath("$[0].content").value(article2.getContent()))
-				.andExpect(jsonPath("$[0].regDate").exists())
-				.andExpect(jsonPath("$[0].updateDate").exists())
-				.andExpect(jsonPath("$[1]").exists())
-				.andExpect(jsonPath("$[1].id").value(article.getId()))
-				.andExpect(jsonPath("$[1].title").value(article.getTitle()))
-				.andExpect(jsonPath("$[1].content").value(article.getContent()))
-				.andExpect(jsonPath("$[1].regDate").exists())
-				.andExpect(jsonPath("$[1].updateDate").exists())
+				.andExpect(status().isOk()) // 200
+				.andExpect(content().string(containsString("게시물 목록입니다.")))
+				.andExpect(jsonPath("$").isMap()) // ResponseData 타입의 객체
+				.andExpect(jsonPath("$.length()").value(5)) // 5개 항목 : resultCode, message, body, fail, success
+				.andExpect(jsonPath("$.resultCode").value("S-1"))
+				.andExpect(jsonPath("$.message").value(startsWith("게시물 목록입니다.")))
+				.andExpect(jsonPath("$.success").value(true))
+				.andExpect(jsonPath("$.body").isArray())
+				.andExpect(jsonPath("$.body.length()").value(2))
+				.andExpect(jsonPath("$.body.[0].id").value(article2.getId()))
+				.andExpect(jsonPath("$.body.[0].title").value(article2.getTitle()))
+				.andExpect(jsonPath("$.body.[0].content").value(article2.getContent()))
+				.andExpect(jsonPath("$.body.[0].regDate").exists())
+				.andExpect(jsonPath("$.body.[0].updateDate").exists())
+				.andExpect(jsonPath("$.body.[1].id").value(article.getId()))
+				.andExpect(jsonPath("$.body.[1].title").value(article.getTitle()))
+				.andExpect(jsonPath("$.body.[1].content").value(article.getContent()))
+				.andExpect(jsonPath("$.body.[1].regDate").exists())
+				.andExpect(jsonPath("$.body.[1].updateDate").exists())
 				.andReturn();
 
 		// 참고: JSON 역직렬화 (Deserialize JSON String to Object)
 		// 1단계. 응답 바디에서 JSON 문자열 추출
 		final String json = mvcResult.getResponse().getContentAsString();
 		// 2단계. Jackson 라이브러리의 ObjectMapper 를 사용해 역직렬화
-		// final List<ArticleDto.Response> deserialized = objectMapper.readValue(json, List.class);
-		final List<ArticleDto.Response> deserialized = objectMapper.readValue(json, new TypeReference<>() {}); // 타입 안정성을 위한 Super Type Token 사용
+		// final ResponseData deserialized = objectMapper.readValue(json, ResponseData.class);
+		final ResponseData<List<ArticleDto.Response>> deserialized = objectMapper.readValue(json, new TypeReference<>() {}); // 타입 안정성을 위한 Super Type Token 사용
 		// 결과 확인
 		log.info("deserialized : {}", deserialized);
 	}
@@ -183,10 +200,10 @@ public class ArticleControllerTest extends IntegrationTest {
 
 		//then
 		resultActions
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$").isEmpty())
-				.andExpect(jsonPath("$").isArray())
-				.andExpect(jsonPath("$.length()").value(0));
+				.andExpect(status().isOk()) // 200
+				.andExpect(jsonPath("$.body").isEmpty()) // 빈 배열 리턴
+				.andExpect(jsonPath("$.body").isArray())
+				.andExpect(jsonPath("$.body.length()").value(0));
 	}
 
 	@Test
@@ -195,33 +212,36 @@ public class ArticleControllerTest extends IntegrationTest {
 		//given
 		final Article article = articleSetup.createArticle(); // 기존 게시물
 
-		final ArticleDto.Response resp = modelMapper.map(article, ArticleDto.Response.class);
-
 		//when
-		final ArticleDto.Save req = ArticleDto.Save.builder()
+		final LocalDateTime updatedAt = LocalDateTime.of(2021, 12, 12, 12, 12);
+		final ArticleDto.Save saveDto = ArticleDto.Save.builder()
 				.title("제목 수정")
-				.content(resp.getContent())
+				.content("내용 수정")
+				.updateDate(updatedAt)
 				.build();
 
-		final ResultActions resultActions = requestUpdateArticle(resp.getId(), req); // 게시물 업데이트 요청
+		final ResultActions resultActions = requestUpdateArticle(article.getId(), saveDto); // 게시물 업데이트 요청
 
 		//then
 		final MvcResult mvcResult = resultActions
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("title").value(req.getTitle()))
-				.andExpect(jsonPath("updateDate", not(resp.getUpdateDate()))) //업데이트 후 updateDate 도 수정됨
+				.andExpect(status().isOk()) // 200
+				.andExpect(content().string(containsString("번 게시물을 수정하였습니다.")))
+				.andExpect(jsonPath("resultCode").value("S-1"))
+				.andExpect(jsonPath("message").value(endsWith("번 게시물을 수정하였습니다.")))
+				.andExpect(jsonPath("success").value(true))
+				.andExpect(jsonPath("body.title").value(saveDto.getTitle()))
+				.andExpect(jsonPath("body.content").value(saveDto.getContent()))
+				.andExpect(jsonPath("body.updateDate", not(jsonPath("body.regDate")))) //업데이트 후 updateDate 수정
 				.andReturn();
 
 		assertThat(article.getRegDate()).isNotEqualTo(article.getUpdateDate());
 
 		// for increasing coverage
 		final String json = mvcResult.getResponse().getContentAsString();
-		final ArticleDto.Response result = objectMapper.readValue(json, ArticleDto.Response.class);
+		final ResponseData<ArticleDto.Response> deserialized = objectMapper.readValue(json, new TypeReference<>() {});
+		final ArticleDto.Response body = deserialized.getBody();
 
-		log.info("previousDate = {}", article.getUpdateDate());
-		log.info("currentDate = {}", result.getUpdateDate());
-
-		assertThat(result.getUpdateDate()).isNotEqualTo(article.getUpdateDate());
+		assertThat(body.getUpdateDate()).isNotEqualTo(body.getRegDate());
 	}
 
 	@Test
@@ -241,6 +261,7 @@ public class ArticleControllerTest extends IntegrationTest {
 		//then
 		resultActions
 				.andExpect(status().isBadRequest()) // 400
+				.andExpect(content().string(containsString("잘못된 입력 값이 포함되어 있습니다.")))
 				.andExpect(jsonPath("message").value(ErrorCode.INVALID_INPUT_VALUE.getMessage()))
 				.andExpect(jsonPath("code").value(ErrorCode.INVALID_INPUT_VALUE.getCode()))
 				.andExpect(jsonPath("status").value(ErrorCode.INVALID_INPUT_VALUE.getStatus().value()))
@@ -303,6 +324,7 @@ public class ArticleControllerTest extends IntegrationTest {
 		return mockMvc.perform(post("/articles/{id}/edit", id)
 						.param("title", dto.getTitle())
 						.param("content", dto.getContent())
+						.param("updateDate", String.valueOf(dto.getUpdateDate()))
 						.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 						.accept(MediaType.APPLICATION_JSON_UTF8))
 				.andDo(print());

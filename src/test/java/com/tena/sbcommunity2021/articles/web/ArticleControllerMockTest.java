@@ -23,6 +23,7 @@ import org.modelmapper.convention.NameTokenizers;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -33,6 +34,7 @@ import java.util.List;
 import static io.florianlopes.spring.test.web.servlet.request.MockMvcRequestBuilderUtils.postForm;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
@@ -95,11 +97,15 @@ class ArticleControllerMockTest {
 		verify(articleService, times(1)).createArticle(any());
 		resultActions
 				.andExpect(status().isCreated()) // 201
-				.andExpect(jsonPath("id").exists())
-				.andExpect(jsonPath("title").value(dto.getTitle()))
-				.andExpect(jsonPath("content").value(dto.getContent()))
-				.andExpect(jsonPath("regDate").exists())
-				.andExpect(jsonPath("updateDate").exists());
+				.andExpect(content().string(containsString("게시물이 작성되었습니다.")))
+				.andExpect(jsonPath("resultCode").value("S-1"))
+				.andExpect(jsonPath("message").value(org.hamcrest.Matchers.startsWith("게시물이 작성되었습니다.")))
+				.andExpect(jsonPath("success").value(true))
+				.andExpect(jsonPath("body.id").exists())
+				.andExpect(jsonPath("body.title").value(dto.getTitle()))
+				.andExpect(jsonPath("body.content").value(dto.getContent()))
+				.andExpect(jsonPath("body.regDate").exists())
+				.andExpect(jsonPath("body.updateDate").exists());
 	}
 
 	@Test
@@ -121,6 +127,7 @@ class ArticleControllerMockTest {
 
 		resultActions
 				.andExpect(status().isBadRequest()) // 400
+				.andExpect(content().string(containsString("잘못된 입력 값이 포함되어 있습니다.")))
 				.andExpect(jsonPath("message").value(ErrorCode.INVALID_INPUT_VALUE.getMessage()))
 				.andExpect(jsonPath("code").value(ErrorCode.INVALID_INPUT_VALUE.getCode()))
 				.andExpect(jsonPath("status").value(ErrorCode.INVALID_INPUT_VALUE.getStatus().value()))
@@ -146,6 +153,7 @@ class ArticleControllerMockTest {
 
 		resultActions
 				.andExpect(status().isBadRequest()) // 400
+				.andExpect(content().string(containsString("잘못된 입력 값이 포함되어 있습니다.")))
 				.andExpect(jsonPath("message").value(ErrorCode.INVALID_INPUT_VALUE.getMessage()))
 				.andExpect(jsonPath("code").value(ErrorCode.INVALID_INPUT_VALUE.getCode()))
 				.andExpect(jsonPath("status").value(ErrorCode.INVALID_INPUT_VALUE.getStatus().value()))
@@ -177,11 +185,14 @@ class ArticleControllerMockTest {
 
 		resultActions
 				.andExpect(status().isOk()) // 200
-				.andExpect(jsonPath("id").exists())
-				.andExpect(jsonPath("title").value(article.getTitle()))
-				.andExpect(jsonPath("content").value(article.getContent()))
-				.andExpect(jsonPath("regDate").exists())
-				.andExpect(jsonPath("updateDate").exists())
+				.andExpect(content().string(containsString("번 게시물입니다.")))
+				.andExpect(jsonPath("resultCode").value("S-1"))
+				.andExpect(jsonPath("success").value(true))
+				.andExpect(jsonPath("body.id").exists())
+				.andExpect(jsonPath("body.title").value(article.getTitle()))
+				.andExpect(jsonPath("body.content").value(article.getContent()))
+				.andExpect(jsonPath("body.regDate").exists())
+				.andExpect(jsonPath("body.updateDate").exists())
 				.andReturn();
 	}
 
@@ -198,7 +209,8 @@ class ArticleControllerMockTest {
 		verify(articleService, atLeastOnce()).getArticle(anyLong());
 
 		resultActions
-				.andExpect(status().isNotFound())
+				.andExpect(status().isNotFound()) // 404
+				.andExpect(content().string(containsString("게시물이 존재하지 않습니다.")))
 				.andExpect(jsonPath("message").value(ErrorCode.ARTICLE_NOT_FOUND.getMessage()))
 				.andExpect(jsonPath("code").value(ErrorCode.ARTICLE_NOT_FOUND.getCode()))
 				.andExpect(jsonPath("status").value(ErrorCode.ARTICLE_NOT_FOUND.getStatus().value()))
@@ -232,19 +244,20 @@ class ArticleControllerMockTest {
 		verify(articleService, times(1)).getArticles();
 
 		resultActions
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$").isArray())
-				.andExpect(jsonPath("$.length()").value(2))
-				.andExpect(jsonPath("$[0]").exists())
-				.andExpect(jsonPath("$[0].title").value(article1.getTitle()))
-				.andExpect(jsonPath("$[0].content").value(article1.getContent()))
-				.andExpect(jsonPath("$[0].regDate").exists())
-				.andExpect(jsonPath("$[0].updateDate").exists())
-				.andExpect(jsonPath("$[1]").exists())
-				.andExpect(jsonPath("$[1].title").value(article2.getTitle()))
-				.andExpect(jsonPath("$[1].content").value(article2.getContent()))
-				.andExpect(jsonPath("$[1].regDate").exists())
-				.andExpect(jsonPath("$[1].updateDate").exists());
+				.andExpect(status().isOk()) // 200
+				.andExpect(content().string(containsString("게시물 목록입니다.")))
+				.andExpect(jsonPath("resultCode").value("S-1"))
+				.andExpect(jsonPath("success").value(true))
+				.andExpect(jsonPath("body").isArray())
+				.andExpect(jsonPath("body.length()").value(2))
+				.andExpect(jsonPath("body.[0].title").value(article1.getTitle()))
+				.andExpect(jsonPath("body.[0].content").value(article1.getContent()))
+				.andExpect(jsonPath("body.[0].regDate").exists())
+				.andExpect(jsonPath("body.[0].updateDate").exists())
+				.andExpect(jsonPath("body.[1].title").value(article2.getTitle()))
+				.andExpect(jsonPath("body.[1].content").value(article2.getContent()))
+				.andExpect(jsonPath("body.[1].regDate").exists())
+				.andExpect(jsonPath("body.[1].updateDate").exists());
 	}
 
 	@Test
@@ -258,17 +271,17 @@ class ArticleControllerMockTest {
 
 		//then
 		resultActions
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$").isEmpty())
-				.andExpect(jsonPath("$").isArray())
-				.andExpect(jsonPath("$.length()").value(0));
+				.andExpect(status().isOk()) // 200
+				.andExpect(jsonPath("$.body").isEmpty()) // 빈 배열 리턴
+				.andExpect(jsonPath("$.body").isArray())
+				.andExpect(jsonPath("$.body.length()").value(0));
 	}
 
 	@Test
 	@DisplayName("게시물 업데이트 요청/응답 - 200, 수정 성공 시")
 	void updateArticle_success() throws Exception {
 		//given
-		final ArticleDto.Save dto = ArticleDto.Save.builder()
+		final ArticleDto.Save saveDto = ArticleDto.Save.builder()
 				.title("수정된 제목")
 				.content("수정된 내용")
 				.build();
@@ -277,26 +290,28 @@ class ArticleControllerMockTest {
 		final LocalDateTime regDate = LocalDateTime.of(2020, 11, 11, 11, 30, 0);
 		final LocalDateTime updateDate = LocalDateTime.now();
 		when(article.getId()).thenReturn(1L);
-		when(article.getTitle()).thenReturn(dto.getTitle());
-		when(article.getContent()).thenReturn(dto.getContent());
+		when(article.getTitle()).thenReturn(saveDto.getTitle());
+		when(article.getContent()).thenReturn(saveDto.getContent());
 		when(article.getRegDate()).thenReturn(regDate);
 		when(article.getUpdateDate()).thenReturn(updateDate);
 
 		when(articleService.updateArticle(anyLong(), any())).thenReturn(article);
 
 		//when
-		final ResultActions resultActions = requestUpdateArticle(dto);
+		final ResultActions resultActions = requestUpdateArticle(saveDto);
 
 		//then
 		verify(articleService, times(1)).updateArticle(anyLong(), any());
 
 		resultActions
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("title").value(dto.getTitle()))
-				.andExpect(jsonPath("content").value(dto.getContent()))
-				.andExpect(jsonPath("id").exists())
-				.andExpect(jsonPath("regDate").exists())
-				.andExpect(jsonPath("updateDate").exists());
+				.andExpect(status().isOk()) // 200
+				.andExpect(content().string(containsString("번 게시물을 수정하였습니다.")))
+				.andExpect(jsonPath("resultCode").value("S-1"))
+				.andExpect(jsonPath("success").value(true))
+				.andExpect(jsonPath("body.title").value(saveDto.getTitle()))
+				.andExpect(jsonPath("body.content").value(saveDto.getContent()))
+				.andExpect(jsonPath("body.updateDate", not(jsonPath("body.regDate")))) //업데이트 후 updateDate 수정
+				.andReturn();
 	}
 
 	@Test
@@ -319,24 +334,26 @@ class ArticleControllerMockTest {
 			return article;
 		});
 
-		final ArticleDto.Save dto = ArticleDto.Save.builder()
+		final ArticleDto.Save saveDto = ArticleDto.Save.builder()
 				.title("수정된 제목")
 				.content("수정된 내용")
 				.build();
 
 		//when
-		final ResultActions resultActions = requestUpdateArticle(dto);
+		final ResultActions resultActions = requestUpdateArticle(saveDto);
 
 		//then
 		verify(articleService, times(1)).updateArticle(anyLong(), any());
 
 		resultActions
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("title").value(dto.getTitle()))
-				.andExpect(jsonPath("content").value(dto.getContent()))
-				.andExpect(jsonPath("id").exists())
-				.andExpect(jsonPath("regDate").exists())
-				.andExpect(jsonPath("updateDate").exists());
+				.andExpect(status().isOk()) // 200
+				.andExpect(content().string(containsString("번 게시물을 수정하였습니다.")))
+				.andExpect(jsonPath("resultCode").value("S-1"))
+				.andExpect(jsonPath("success").value(true))
+				.andExpect(jsonPath("body.title").value(saveDto.getTitle()))
+				.andExpect(jsonPath("body.content").value(saveDto.getContent()))
+				.andExpect(jsonPath("body.updateDate", not(jsonPath("body.regDate")))) //업데이트 후 updateDate 수정
+				.andReturn();
 	}
 
 	@Test
@@ -367,25 +384,25 @@ class ArticleControllerMockTest {
 			return article;
 		});
 
-		final ArticleDto.Save dto = ArticleDto.Save.builder()
+		final ArticleDto.Save saveDto = ArticleDto.Save.builder()
 				.title("수정된 제목") // 제목만 수정
 				.content(article.getContent()) // 내용은 수정안함
 				.build();
 
 		//when
-		final ResultActions resultActions = requestUpdateArticle(dto);
+		final ResultActions resultActions = requestUpdateArticle(saveDto);
 
 		//then
 		verify(articleService, times(1)).updateArticle(anyLong(), any());
 
 		resultActions
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("title").value(dto.getTitle()))
-				.andExpect(jsonPath("content").value(dto.getContent()))
-				.andExpect(jsonPath("id").exists())
-				.andExpect(jsonPath("regDate").exists())
-				.andExpect(jsonPath("updateDate").exists())
-				.andExpect(jsonPath("id").value(article.getId()))
+				.andExpect(status().isOk()) // 200
+				.andExpect(content().string(containsString("번 게시물을 수정하였습니다.")))
+				.andExpect(jsonPath("resultCode").value("S-1"))
+				.andExpect(jsonPath("success").value(true))
+				.andExpect(jsonPath("body.title").value(saveDto.getTitle()))
+				.andExpect(jsonPath("body.content").value(saveDto.getContent()))
+				.andExpect(jsonPath("body.updateDate", not(jsonPath("body.regDate")))) //업데이트 후 updateDate 수정
 				.andReturn();
 
 		// for increasing coverage
@@ -410,6 +427,7 @@ class ArticleControllerMockTest {
 
 		resultActions
 				.andExpect(status().isBadRequest()) // 400
+				.andExpect(content().string(containsString("잘못된 입력 값이 포함되어 있습니다.")))
 				.andExpect(jsonPath("message").value(ErrorCode.INVALID_INPUT_VALUE.getMessage()))
 				.andExpect(jsonPath("code").value(ErrorCode.INVALID_INPUT_VALUE.getCode()))
 				.andExpect(jsonPath("status").value(ErrorCode.INVALID_INPUT_VALUE.getStatus().value()))
