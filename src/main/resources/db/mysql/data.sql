@@ -49,3 +49,19 @@ SET regDate      = NOW(),
     nickname     = '사용자2',
     mobileNumber = '01011112222',
     email        = 'user2@email.com';
+
+
+-- # 게시물 테이블에 작성자 칼럼 추가
+ALTER TABLE article ADD COLUMN accountId INT(10) UNSIGNED NOT NULL AFTER updateDate;
+
+-- # 기존 게시물의 작성자를 1번 회원으로 지정
+UPDATE article
+SET accountId = 1
+WHERE accountId = 0;
+
+-- # 게시물 테이블의 작성자 칼럼 FK 설정
+ALTER TABLE article ADD FOREIGN KEY (`accountId`) REFERENCES `account`(`id`);
+
+-- # 게시물 테이블 확인
+-- DESC article;
+-- SELECT * FROM article;
