@@ -48,4 +48,10 @@
         ORDER BY id DESC
     </select>
 
+    <select id="findByUsername" resultType="Account">
+        SELECT *
+        FROM account AS A
+        WHERE A.username = #{username}
+    </select>
+
 </mapper>

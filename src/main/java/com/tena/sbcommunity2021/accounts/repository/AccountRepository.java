@@ -22,4 +22,6 @@ public interface AccountRepository {
 
 	List<Account> findAll();
 
+	Account findByUsername(String username);
+
 }

@@ -35,4 +35,8 @@ public class AccountService {
 		return accountRepository.findAll();
 	}
 
+	public Account getAccountByUsername(String username) {
+		return accountRepository.findByUsername(username);
+	}
+
 }
