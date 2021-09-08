@@ -1,14 +1,22 @@
 package com.tena.sbcommunity2021.global.configs;
 
+import com.tena.sbcommunity2021.global.commons.CurrentUser;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.NameTokenizers;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.context.annotation.SessionScope;
 
 import static org.modelmapper.config.Configuration.AccessLevel.PRIVATE;
 
 @Configuration(proxyBeanMethods = false)
 public class AppConfig {
+
+	@SessionScope
+	@Bean
+	public CurrentUser currentUser() {
+		return new CurrentUser();
+	}
 
 	@Bean
 	public ModelMapper modelMapper() {
