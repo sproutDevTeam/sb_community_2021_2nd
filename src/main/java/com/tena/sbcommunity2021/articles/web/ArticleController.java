@@ -4,6 +4,7 @@ import com.tena.sbcommunity2021.articles.domain.Article;
 import com.tena.sbcommunity2021.articles.dto.ArticleDto;
 import com.tena.sbcommunity2021.articles.service.ArticleService;
 import com.tena.sbcommunity2021.global.commons.ResponseData;
+import com.tena.sbcommunity2021.global.commons.UserAccount;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -23,6 +24,7 @@ public class ArticleController {
 
 	private final ArticleService articleService;
 	private final ModelMapper modelMapper;
+	private final UserAccount userAccount;
 
 	@GetMapping
 	@ResponseBody
@@ -51,7 +53,7 @@ public class ArticleController {
 	@ResponseBody
 	@ResponseStatus(HttpStatus.CREATED)
 	public ResponseData<ArticleDto.Response> createArticle(@Valid ArticleDto.Save saveDto) {
-		Article article = articleService.createArticle(saveDto);
+		Article article = articleService.createArticle(userAccount.getAccountId(), saveDto);
 
 		ArticleDto.Response body = modelMapper.map(article, ArticleDto.Response.class);
 

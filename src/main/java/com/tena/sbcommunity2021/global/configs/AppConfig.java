@@ -14,7 +14,7 @@ public class AppConfig {
 
 	@SessionScope
 	@Bean
-	public UserAccount currentUser() {
+	public UserAccount userAccount() {
 		return new UserAccount();
 	}
 
