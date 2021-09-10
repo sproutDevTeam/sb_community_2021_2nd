@@ -1,6 +1,6 @@
 package com.tena.sbcommunity2021.global.configs;
 
-import com.tena.sbcommunity2021.global.commons.CurrentUser;
+import com.tena.sbcommunity2021.global.commons.UserAccount;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.NameTokenizers;
 import org.springframework.context.annotation.Bean;
@@ -14,8 +14,8 @@ public class AppConfig {
 
 	@SessionScope
 	@Bean
-	public CurrentUser currentUser() {
-		return new CurrentUser();
+	public UserAccount currentUser() {
+		return new UserAccount();
 	}
 
 	@Bean

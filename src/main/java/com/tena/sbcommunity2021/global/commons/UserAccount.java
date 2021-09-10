@@ -8,7 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class CurrentUser {
+public class UserAccount {
 
 	private Account account;
 

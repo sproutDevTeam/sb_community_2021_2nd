@@ -4,7 +4,7 @@ import com.tena.sbcommunity2021.accounts.domain.Account;
 import com.tena.sbcommunity2021.accounts.dto.AccountDto;
 import com.tena.sbcommunity2021.accounts.dto.LoginForm;
 import com.tena.sbcommunity2021.accounts.service.AccountService;
-import com.tena.sbcommunity2021.global.commons.CurrentUser;
+import com.tena.sbcommunity2021.global.commons.UserAccount;
 import com.tena.sbcommunity2021.global.commons.ResponseData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,13 +21,13 @@ import javax.servlet.http.HttpSession;
 public class LoginController {
 
 	private final AccountService accountService;
-	private final CurrentUser currentUser;
+	private final UserAccount userAccount;
 
 	@RequestMapping("/login")
 	@ResponseBody
 	public ResponseData<AccountDto.Response> login(@Validated LoginForm loginForm) {
 
-		if (currentUser.isAuthenticated()) {
+		if (userAccount.isAuthenticated()) {
 			return ResponseData.of("F-3", "이미 로그인 중입니다.");
 		}
 
@@ -41,7 +41,7 @@ public class LoginController {
 			return ResponseData.of("F-2", "입력한 아이디 또는 비밀번호가 올바르지 않습니다.");
 		}
 
-		currentUser.setAccount(account);
+		userAccount.setAccount(account);
 
 		return ResponseData.of("S-1", String.format("%s님 환영합니다.", account.getNickname()));
 	}
@@ -50,7 +50,7 @@ public class LoginController {
 	@ResponseBody
 	public ResponseData<AccountDto.Response> logout(HttpSession httpSession) {
 
-		if (!currentUser.isAuthenticated()) {
+		if (!userAccount.isAuthenticated()) {
 			return ResponseData.of("S-1", "로그인 상태가 아닙니다.");
 		}
 
