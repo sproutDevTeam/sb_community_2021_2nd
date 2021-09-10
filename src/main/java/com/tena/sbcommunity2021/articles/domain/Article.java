@@ -25,6 +25,10 @@ public class Article {
 
 	private Long accountId;
 
+	public boolean isEditableBy(Long accountId) {
+		return this.accountId.equals(accountId);
+	}
+
 //	public void renewUpdateDate() {
 //		this.updateDate = LocalDateTime.now();
 //	}

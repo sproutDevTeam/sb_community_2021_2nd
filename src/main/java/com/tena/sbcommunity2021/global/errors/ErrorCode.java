@@ -16,6 +16,9 @@ public enum ErrorCode {
 	// 401 Unauthorized
 	UNAUTHORIZED("C-401", "로그인 후 이용해주세요.", HttpStatus.UNAUTHORIZED),
 
+	// 403 Forbidden
+	FORBIDDEN("C-403", "권한이 없습니다.", HttpStatus.FORBIDDEN),
+
 	// 405 Method Not Allowed : 허용되지 않은 Request Method 호출
 	METHOD_NOT_ALLOWED("C-405", "허용되지 않은 메서드입니다.", HttpStatus.METHOD_NOT_ALLOWED),
 

@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.tena.sbcommunity2021.global.errors.ErrorCode.FORBIDDEN;
 import static com.tena.sbcommunity2021.global.errors.ErrorCode.UNAUTHORIZED;
 
 @Slf4j
@@ -37,6 +38,8 @@ public class ArticleService {
 		return articleRepository.findById(id).orElseThrow(ArticleNotFoundException::new);
 	}
 
+	// TODO : 로그인 여부, 수정 권한 체크 -> 추후 인터셉터 처리
+
 	public Article createArticle(ArticleDto.Save saveDto) {
 
 		if (!userAccount.isAuthenticated()) { // 로그인 체크
@@ -51,7 +54,15 @@ public class ArticleService {
 	}
 
 	public Article updateArticle(Long id, ArticleDto.Save saveDto) {
+		if (!userAccount.isAuthenticated()) { // 로그인 체크
+			throw new CustomException(UNAUTHORIZED);
+		}
+
 		Article article = getArticle(id); // 기존 게시물 조회
+
+		if (!article.isEditableBy(userAccount.getAccountId())) { // 권한 체크
+			throw new CustomException(FORBIDDEN);
+		}
 
 		modelMapper.map(saveDto, article); // 기존값 변경
 
@@ -61,9 +72,17 @@ public class ArticleService {
 	}
 
 	public void deleteArticle(Long id) {
+		if (!userAccount.isAuthenticated()) { // 로그인 체크
+			throw new CustomException(UNAUTHORIZED);
+		}
+
 		Article article = getArticle(id);
 
-		articleRepository.deleteById(article.getId());
+		if (!article.isEditableBy(userAccount.getAccountId())) { // 권한 체크
+			throw new CustomException(FORBIDDEN);
+		}
+
+		articleRepository.deleteById(id);
 	}
 
 }
