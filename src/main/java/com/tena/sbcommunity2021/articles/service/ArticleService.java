@@ -5,6 +5,7 @@ import com.tena.sbcommunity2021.articles.dto.ArticleDto;
 import com.tena.sbcommunity2021.articles.exception.ArticleNotCreatedException;
 import com.tena.sbcommunity2021.articles.exception.ArticleNotFoundException;
 import com.tena.sbcommunity2021.articles.repository.ArticleRepository;
+import com.tena.sbcommunity2021.global.commons.UserAccount;
 import com.tena.sbcommunity2021.global.errors.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.tena.sbcommunity2021.global.errors.ErrorCode.UNAUTHORIZED;
+
 @Slf4j
 @Service
 @Transactional
@@ -22,6 +25,7 @@ public class ArticleService {
 
 	private final ArticleRepository articleRepository;
 	private final ModelMapper modelMapper;
+	private final UserAccount userAccount;
 
 	@Transactional(readOnly = true)
 	public List<Article> getArticles() {
@@ -34,9 +38,14 @@ public class ArticleService {
 	}
 
 	public Article createArticle(ArticleDto.Save saveDto) {
+
+		if (!userAccount.isAuthenticated()) { // 로그인 체크
+			throw new CustomException(UNAUTHORIZED);
+		}
+
 		Article article = modelMapper.map(saveDto, Article.class); // 도메인 객체로 변환
 
-		articleRepository.save(article); // 게시물 저장
+		articleRepository.save(userAccount.getAccountId(), article); // 게시물 저장
 
 		return articleRepository.findById(article.getId()).orElseThrow(ArticleNotCreatedException::new); // 저장한 게시물 조회
 	}

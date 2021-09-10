@@ -23,7 +23,8 @@ public class Article {
 
 	private LocalDateTime updateDate;
 
-// [기존] 수정일자 갱신
+	private Long accountId;
+
 //	public void renewUpdateDate() {
 //		this.updateDate = LocalDateTime.now();
 //	}

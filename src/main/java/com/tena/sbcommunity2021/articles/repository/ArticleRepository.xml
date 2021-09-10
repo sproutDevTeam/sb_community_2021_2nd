@@ -4,14 +4,15 @@
 <mapper namespace="com.tena.sbcommunity2021.articles.repository.ArticleRepository">
 
     <insert id="save">
-        <selectKey keyProperty="id" resultType="long" order="AFTER">
+        <selectKey keyProperty="article.id" resultType="long" order="AFTER">
             SELECT LAST_INSERT_ID()
         </selectKey>
         INSERT INTO article
         SET regDate = NOW(),
         updateDate = NOW(),
-        title = #{title},
-        content = #{content}
+        accountId = #{accountId},
+        title = #{article.title},
+        content = #{article.content}
     </insert>
 
     <update id="update">

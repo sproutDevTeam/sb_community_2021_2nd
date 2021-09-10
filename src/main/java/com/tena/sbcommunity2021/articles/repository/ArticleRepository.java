@@ -13,7 +13,7 @@ public interface ArticleRepository {
 
 	Optional<Article> findById(Long id);
 
-	void save(Article article);
+	void save(Long accountId, Article article);
 
 	void update(Article article);
 

@@ -16,4 +16,8 @@ public class UserAccount {
 		return this.account != null;
 	}
 
+	public Long getAccountId() {
+		return this.account != null ? this.account.getId() : null;
+	}
+
 }
