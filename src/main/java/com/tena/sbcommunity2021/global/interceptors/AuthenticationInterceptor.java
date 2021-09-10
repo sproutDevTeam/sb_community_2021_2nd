@@ -36,7 +36,6 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
 		if (requestUri.contains("/edit") || requestUri.contains("/delete")) { // 현재 요청이 수정/삭제와 관련된 요청인 경우
 
 			final Map<String, String> pathVariables = (Map<String, String>) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
-			System.out.println("pathVariables.get(\"id\") = " + pathVariables.get("id"));
 			final Long id = Long.valueOf(pathVariables.get("id"));
 
 			checkUserCanEdit(requestUri, id); // 권한 체크
@@ -56,7 +55,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
 	private void checkUserCanEdit(final String requestUri, final Long id) {
 		log.info("AuthenticationInterceptor.checkUserCanEdit");
 
-		if (requestUri.contains("/articles")) { // 게시물 관련된 수정/삭제 요청
+		if (requestUri.startsWith("/articles")) { // 게시물 관련된 수정/삭제 요청
 			Article article = articleService.getArticle(id);
 
 			if (!article.isEditableBy(userAccount.getAccountId())) {
