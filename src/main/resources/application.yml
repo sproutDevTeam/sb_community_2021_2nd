@@ -1,7 +1,6 @@
 spring:
   profiles:
     active: local
-
 server:
   port: 8081
   servlet:
@@ -9,6 +8,7 @@ server:
       charset: UTF-8
       enabled: true
       force: true
+    context-path: /sbc2021
 
 mybatis:
   type-aliases-package: com.tena.sbcommunity2021.**.domain # resultType, parameterType 패키지 경로 생략
